@@ -1,0 +1,10 @@
+---
+# defaults file for sshd
+
+sshd_options:
+  - setting: PermitRootLogin
+    value: 'without-password'
+    state: present
+  - setting: UseDNS
+    value: 'no'
+    state: present

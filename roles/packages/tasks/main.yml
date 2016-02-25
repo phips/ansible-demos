@@ -1,0 +1,16 @@
+---
+# tasks file for packages
+
+- name: Ensure packages are installed
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: packages
+  when: packages is defined
+
+- name: Ensure python-pip packages are installed
+  pip:
+    name: "{{ item }}"
+    state: latest
+  with_items: packages_pip
+  when: packages_pip is defined

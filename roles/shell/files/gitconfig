@@ -1,0 +1,7 @@
+[user]
+    name = Mark Phillips
+    email = mark@probably.co.uk
+[alias]
+	st = status
+[color]
+	ui = auto

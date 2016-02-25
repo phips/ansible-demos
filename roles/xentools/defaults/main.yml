@@ -1,0 +1,6 @@
+---
+# defaults file for xentools
+
+xentools_archive: xentools-6.5.tgz
+xentools_sha256: 3ee2a0df7269a60d9637344bfca6bbfd9013f87c7d092d4ace64347d72869b8d
+xentools_force: False

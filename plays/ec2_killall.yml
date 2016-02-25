@@ -1,0 +1,26 @@
+---
+- hosts: all:!tag_type_tower:!tag_type_jenkins
+  vars:
+    region: eu-west-1
+
+  tasks:
+    - name: DANGER WILL ROBINSON! DANGER!
+      debug: var=ec2_id
+
+    - name: Kill it
+      local_action:
+        module: ec2
+        region: "{{ region }}"
+        instance_ids: "{{ ec2_id }}"
+        state: absent
+
+    - name: Success
+      debug: msg="Terminated instance ID {{ ec2_id }}"
+
+    - name: Kill ELB
+      local_action:
+        module: ec2_elb_lb
+        region: "{{ region }}"
+        name: "{{ lbname | default('VPClb') }}"
+        state: absent
+      when: kill_elb is defined

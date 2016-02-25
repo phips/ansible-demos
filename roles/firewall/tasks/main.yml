@@ -1,0 +1,11 @@
+---
+# tasks file for firewall
+
+- name: Get default zone
+  command: firewall-cmd --get-default-zone
+  register: output
+  changed_when: false
+
+- name: Set default zone
+  command: firewall-cmd --set-default-zone {{ firewall_default_zone }}
+  when: firewall_default_zone not in output.stdout

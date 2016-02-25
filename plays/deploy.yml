@@ -1,0 +1,11 @@
+---
+- name: Deploy web application
+  hosts: app
+  become: yes
+  tasks:
+    - name: Set selinux permissive
+      selinux:
+        policy: targeted
+        state: permissive
+  roles:
+    - { role: app }

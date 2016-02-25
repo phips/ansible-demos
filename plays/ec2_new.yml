@@ -1,0 +1,53 @@
+---
+# vim: set ft=ansible:
+- hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    region:   eu-west-1
+    ami:      ami-9d23aeea # Amazon Linux 2014.09.2
+    keypair:  ** your_ssh_keypair **
+    set_dns:  False
+    count:    1
+    tags:
+      env:  "{{ tags_env  | default('prod') }}"
+      type: "{{ tags_type | default('web') }}"
+    wait_for_ssh: False
+
+  tasks:
+    - name: Launch instance
+      local_action:
+        module: ec2
+        keypair: "{{ keypair }}"
+        instance_type: "{{ type | default('t2.micro') }}"
+        vpc_subnet_id: "subnet-{{ vpc_subnet | default('459a9231') }}"
+        image: "{{ ami }}"
+        region: "{{ region }}"
+        count: "{{ count }}"
+        wait: yes
+        instance_tags: "{{ tags }}"
+        user_data: "{{ lookup('file', '../scripts/ec2_bootstrap.sh') }}"
+        assign_public_ip: "{{ assign_eip | default(true) }}"
+      register: ec2
+
+    # only need to do this if instance is outside the default VPC
+    - name: Ensure new instances can access Tower
+      ec2_group:
+        name: default
+        description: "default VPC security group"
+        region: "{{ region }}"
+        # Tower instance sits in the default VPC
+        vpc_id: vpc-ec5e458e
+        purge_rules: false
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: "{{ item.public_ip }}/32"
+      with_items: ec2.instances
+
+    - name: Instance info
+      debug: msg="{{ item.id }} {{ item.public_ip }}"
+      with_items: ec2.instances
+

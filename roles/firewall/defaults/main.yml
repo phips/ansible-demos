@@ -1,0 +1,4 @@
+---
+# defaults file for firewall
+
+firewall_default_zone: trusted

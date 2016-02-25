@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [[ -x /usr/bin/vmware-uninstall-tools.pl ]]; then
+    echo '{"installed":true}'
+else
+    echo '{"installed":false}'
+fi

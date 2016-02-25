@@ -1,0 +1,4 @@
+---
+# defaults file for hosts
+
+hosts_pop_hosts: False

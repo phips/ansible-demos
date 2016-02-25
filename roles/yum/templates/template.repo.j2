@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[{{ item.label }}]
+name={{ item.name }}
+{% if item.baseurl is defined %}
+baseurl={{ item.baseurl }}
+{% elif item.mirrorlist is defined %}
+mirrorlist={{ item.mirrorlist }}
+{% endif %}
+enabled={% if item.enabled %}1
+{% else %}0
+{% endif %}
+gpgcheck={% if item.gpgcheck %}1
+gpgkey={{ item.gpgkey }}
+{% else %}0
+{% endif %}

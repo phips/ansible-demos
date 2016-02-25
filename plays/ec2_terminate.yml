@@ -1,0 +1,24 @@
+---
+# vim: set ft=ansible:
+# terminate the specified EC2 instance-id
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    region: eu-west-1
+
+  tasks:
+    - name: Check for variables
+      fail: msg="Must pass id to -e"
+      when: id is not defined
+
+    - name: Terminate instance
+      ec2:
+        region: "{{ region }}"
+        instance_ids: "{{ id }}"
+        state: absent
+
+    - name: Success
+      debug: msg="Terminated instance ID {{ id }}"

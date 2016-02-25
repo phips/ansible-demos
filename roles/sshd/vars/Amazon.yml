@@ -1,0 +1,10 @@
+---
+# sshd vars file for Amazon
+
+sshd_options:
+  - setting: PermitRootLogin
+    value: 'forced-commands-only'
+    state: present
+  - setting: Banner
+    value: '/etc/issue'
+    state: present

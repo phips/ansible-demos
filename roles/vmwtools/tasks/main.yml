@@ -1,0 +1,64 @@
+---
+# tasks file for vmwtools
+
+- name: Ensure facts directory exists
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Setup fact
+  copy:
+    src: vmwtools.fact
+    dest: /etc/ansible/facts.d/
+    mode: 0755
+  register: newfact
+
+- name: Reload facts
+  setup:
+  when: newfact|changed
+
+- name: Install pre-requisite packages
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - fuse-libs
+    - fuse
+    - kernel-devel
+
+- name: Check for prior download
+  stat:
+    path: "{{ vmwtools_tmp }}/{{ vmwtools_tar}}"
+  register: tar
+
+- name: Fetch tools install
+  get_url:
+    url: "{{ vmwtools_url }}/{{ vmwtools_tar }}"
+    dest: "{{ vmwtools_tmp }}"
+    sha256sum: "{{ vmwtools_sha }}"
+  when:     not tar.stat.exists
+  register: fetch
+
+- name: Unarchive tools dist
+  unarchive:
+    src: "{{ vmwtools_tmp }}/{{ vmwtools_tar }}"
+    dest: "{{ vmwtools_tmp }}"
+    copy: no
+    creates: "{{ vmwtools_tmp }}/vmware-tools-distrib"
+  when: fetch.changed or fetch.skipped
+
+- name: Check for archive
+  stat:
+    path: "{{ vmwtools_tmp }}/vmware-tools-distrib"
+  register: archive
+
+- name: Installing tools
+  command: "{{ vmwtools_tmp }}/vmware-tools-distrib/vmware-install.pl -d"
+  when: not ansible_local.vmwtools.installed
+
+- name: Remove temporary files
+  command: "rm -rf {{ vmwtools_tmp }}/vmware-tools-distrib"
+  when: vmwtools_cleanup
+

@@ -1,0 +1,25 @@
+---
+# vim: set syn=ansible ts=2 sw=2 et:
+#
+# intended to be used by ansible >=2.0
+- hosts: all
+  become: true
+
+  roles:
+    - { role: firewall
+      , when: ansible_distribution_major_version == '7' or ansible_distribution == 'Fedora'
+      , tags: fw }
+    - { role: hosts,      tags: hosts }
+    - { role: issue,      tags: issue }
+    - { role: sshd,       tags: ssh }
+    - { role: shell,      tags: shell }
+    - { role: yum,        tags: yum }
+    - { role: epel,       tags: epel }
+    - { role: packages,   tags: pkgs }
+    - { role: phone_home, tags: ph }
+    - { role: xentools
+      , when: ansible_virtualization_type == "xen"
+      , tags: tools }
+    - { role: vmwtools
+      , when: (ansible_virtualization_type == "VMware" and vmwtools_install)
+      , tags: tools }

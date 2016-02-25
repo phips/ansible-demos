@@ -1,0 +1,25 @@
+---
+# tasks file for phone_home
+# vim: set ft=ansible:
+
+- name: Scripts directory
+  file:
+    path: /opt/scripts
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Script in place
+  copy:
+    src: req_conf.sh
+    dest: /opt/scripts/req_conf.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Set reboot cronjob
+  cron:
+    name: "Phone home on reboot"
+    special_time: reboot
+    job: "/opt/scripts/req_conf.sh {{ phone_home_tower|default('') }} {{ phone_home_key|default('') }} {{ phone_home_id|default('') }}"

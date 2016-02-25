@@ -1,0 +1,41 @@
+---
+- name: Ensure facts directory exists
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Setup fact
+  copy:
+    src: xentools.fact
+    dest: /etc/ansible/facts.d/
+    mode: 0755
+  register: fact_setup
+
+- name: Re-read facts
+  setup:
+  when: fact_setup|changed
+
+- name:     Fetch tools install
+  get_url:
+    url: "http://{{ bootstrap_svr }}/{{ bootstrap_dir }}/{{ xentools_archive }}"
+    dest: "{{ tmp }}"
+    sha256sum: "{{ xentools_sha256 }}"
+  when: (not ansible_local.xentools.installed) or xentools_force
+  register: fetch
+
+- name:  Unarchive tools dist
+  unarchive:
+    src: "{{ tmp }}/{{ xentools_archive }}"
+    dest: "{{ tmp }}"
+    copy: no
+    creates: "{{ tmp }}/Linux"
+  when: fetch|changed
+
+- name:  Installing tools
+  shell: "{{ tmp }}/Linux/install.sh -n"
+  when: (not ansible_local.xentools.installed) or xentools_force
+  ignore_errors: true
+

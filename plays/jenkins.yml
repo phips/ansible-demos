@@ -1,0 +1,19 @@
+---
+# install jenkins
+
+- hosts: all:!tag_type_tower
+  gather_facts: true
+  user: ec2-user
+  sudo: true
+  tags: [ prod_jenkins, pkgs ]
+
+  tasks:
+    - name: Dynamic grouping
+      group_by: key={{ ec2_tag_env }}_{{ ec2_tag_type }}
+
+- hosts: prod_jenkins
+  sudo: yes
+  roles:
+    - { role: packages, tags: pkgs }
+    - { role: geerlingguy.java }
+    - { role: geerlingguy.jenkins }

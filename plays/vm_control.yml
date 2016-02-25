@@ -1,0 +1,51 @@
+---
+# vim: set ft=ansible et ts=2 sw=2:
+#
+# Control the state of a VM - powered_on, powered_off or absent
+# (i.e. delete it)
+
+- hosts: vmcreate
+  gather_facts: false
+  connection: local
+  vars:
+    state: powered_on
+  tasks:
+    - name: Check for required variables
+      fail: msg="Must pass name to -e"
+      when: name is not defined
+
+    - name: Check for vSphere access parameters
+      fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
+      when: (vcenter_user is not defined) or (vcenter_pass is not defined)
+
+    - name: Shutdown VM first if delete required
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        guest: "{{ name }}"
+        state: "powered_off"
+      when: state == "absent"
+
+    - name: Set VM to desired state
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        guest: "{{ name }}"
+        state: "{{ state }}"
+
+    - name: Gather VM facts
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        guest: "{{ name }}"
+        vmware_guest_facts: yes
+      register: newvm
+      when: facts | default(False)
+
+    - name: Report facts
+      debug: msg="{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
+      when: not newvm|skipped
+

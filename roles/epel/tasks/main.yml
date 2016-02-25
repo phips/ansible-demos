@@ -1,0 +1,11 @@
+---
+# tasks file for epel
+
+- name: Include OS major ver vars file
+  include_vars: "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+
+- name: Ensure EPEL is installed
+  shell: rpm -q epel-release || yum install -y {{ epel_rpm }}
+  register: epel_check
+  changed_when: '"not installed" in epel_check.stdout'
+

@@ -1,0 +1,16 @@
+---
+# tasks file for sshd
+# vim: set ft=ansible:
+
+- name: Include OS specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: Ensure sshd settings are applied
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^{{ item.setting }}"
+    line: "{{ item.setting }} {{ item.value }}"
+    state: "{{ item.state }}"
+  with_items: sshd_options
+  notify:
+    - restart sshd

@@ -1,0 +1,6 @@
+---
+- hosts: all:!tag_type_win
+  gather_facts: no
+  tasks:
+    - name: Ping host
+      ping:

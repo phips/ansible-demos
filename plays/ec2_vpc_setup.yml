@@ -1,0 +1,89 @@
+---
+# vim: set ft=ansible:
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    region: eu-west-1
+    tags:
+      env: "{{ tags_env | default('dev') }}"
+
+  tasks:
+    - name: Check for variables
+      fail:
+        msg: "Must supply tags_env to -e"
+      when: tags_env is not defined
+
+    - name: Create VPC
+      local_action:
+        module: ec2_vpc
+        cidr_block: "{{ vpc_subnet | default('172.16.16.0/24') }}"
+        resource_tags: "{{ tags }}"
+        region: "{{ region }}"
+        state: present
+        internet_gateway: true
+        subnets:
+          - cidr: "{{ vpc_subnet | default('172.16.16.0/24') }}"
+            resource_tags:
+              tier: dmz
+        route_tables:
+          - subnets:
+              - "{{ vpc_subnet | default('172.16.16.0/24') }}"
+            routes:
+              - dest: 0.0.0.0/0
+                gw: igw
+      register: vpc
+
+    - name: Ensure firewall rules are present
+      local_action:
+        module: ec2_group
+        name: default
+        description: "default VPC security group"
+        region: "{{ region }}"
+        vpc_id: "{{ vpc.vpc_id }}"
+        purge_rules: false
+        rules:
+          # TOWER
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 52.16.66.2/32
+
+    - name: VPC subnet id is
+      debug:
+        msg: "{{ vpc.subnets[0].id }}"
+
+    - name: Ensure load balancer launched
+      local_action:
+        module: ec2_elb_lb
+        name: "{{ lbname | default('VPClb') }}"
+        region: "{{ region }}"
+        state: present
+        subnets: "{{ vpc.subnets[0].id }}"
+        connection_draining_timeout: 60
+        listeners:
+          - protocol: http
+            load_balancer_port: 80
+            instance_port: 80
+        health_check:
+            ping_protocol: http # options are http, https, ssl, tcp
+            ping_port: 80
+            ping_path: "/" # not required for tcp or ssl
+            response_timeout: 5 # seconds
+            interval: 30 # seconds
+            unhealthy_threshold: 5
+            healthy_threshold: 5
+      register: elb
+
+#   - debug: var=elb.elb.dns_name
+
+    - name: Ensure LB is registered in DNS
+      route53:
+        command: create
+        overwrite: yes
+        record: www.bovine.cow
+        zone: bovine.cow
+        type: CNAME
+        ttl: 180
+        value: "{{ elb.elb.dns_name }}"
+

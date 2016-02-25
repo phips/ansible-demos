@@ -1,0 +1,14 @@
+---
+# tasks file for issue
+
+- name: Gather EC2 facts
+  ec2_facts:
+  when: ansible_distribution == 'Amazon'
+
+- name: Ensure /etc/issue is present
+  template:
+    src: "issue-{{ ansible_distribution }}.j2"
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644

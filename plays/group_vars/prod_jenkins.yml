@@ -1,0 +1,21 @@
+---
+java_packages:
+  - java-1.7.0-openjdk
+
+jenkins_plugins:
+  - git
+  - github
+  - git-parameter
+  - ssh
+  - google-login
+  - shiningpanda
+
+packages:
+  - ack
+  - python26-devel
+  - python26-pip
+  - libxslt-devel
+  - gcc
+
+packages_pip:
+  - ansible-tower-cli
