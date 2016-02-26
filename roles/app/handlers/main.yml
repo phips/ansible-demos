@@ -1,0 +1,8 @@
+---
+# handlers file for app
+
+- name: restart webapp service
+  service:
+    name: webapp
+    state: restarted
+

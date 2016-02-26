@@ -1,0 +1,20 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<title>Informative test web page</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<style>
+body {
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+</style>
+</head>
+<body>
+    <img src="https://s3-eu-west-1.amazonaws.com/cmc-images/{{ app_cow | default('hello') }}cow.png"/>
+    <br>
+    hostname: {{ ansible_ec2_public_hostname }}
+    <br>
+    instance_id: {{ ansible_ec2_instance_id }}
+</body>
+</html>
+

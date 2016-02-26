@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[Unit]
+Description=uWSGI instance to serve Flask app
+After=network.target
+
+[Service]
+User=vagrant
+Group=vagrant
+WorkingDirectory={{ app_path }}
+Environment="PATH={{ app_path }}/support/bin"
+ExecStart={{ app_path }}/support/bin/uwsgi --ini uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
+

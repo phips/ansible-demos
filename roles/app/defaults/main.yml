@@ -1,0 +1,7 @@
+---
+# defaults file for app
+
+app_path: /srv/web_app
+app_jenkins_host: jenkins.box
+app_jenkins_port: 8080
+app_artifact_name: app.tgz

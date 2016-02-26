@@ -1,0 +1,23 @@
+---
+
+nginx_max_clients: 512
+
+nginx_http_params:
+  sendfile: "on"
+  tcp_nopush: "on"
+  tcp_nodelay: "on"
+  keepalive_timeout: "65"
+
+nginx_log_dir: "/var/log/nginx"
+nginx_access_log_name: "access.log"
+nginx_error_log_name: "error.log"
+nginx_separate_logs_per_site: False
+
+nginx_sites: []
+# - server:
+#   file_name: foo
+#   listen: 8080
+#   server_name: localhost
+#   root: "/tmp/site1"
+#   location1: {name: /, try_files: "$uri $uri/ /index.html"}
+#   location2: {name: /images/, try_files: "$uri $uri/ /index.html"}

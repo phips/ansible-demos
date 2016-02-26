@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+[uwsgi]
+module = run_prod
+callable = app
+pythonpath = {{ app_path }}
+virtualenv = {{ app_path }}/support
+master = true
+processes = 2
+socket = uwsgi.sock
+chmod-socket = 666
+vacuum = true
+die-on-term = true
