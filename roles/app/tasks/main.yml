@@ -6,65 +6,17 @@
     msg: "OS is not supported"
   when: ansible_os_family != 'RedHat'
 
-- name: Ensure packages are installed
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - python-lxml
-    - nginx
+- block:
+    - set_fact:
+        deploy: "{{ lookup('pipe', 'curl -m2 -s {{ app_remote_web }}/{{ inventory_hostname }}') }}"
+  rescue:
+    - set_fact:
+        deploy: True
 
-- name: Ensure dir for app path exists
-  file:
-    path: "{{ app_path }}"
-    state: directory
-    owner: vagrant
-    group: vagrant
+- include: deploy.yml
+  when: deploy
+  register: deployed
 
-- name: Download application artifact
-  get_url:
-    url: "http://{{ app_jenkins_host }}:{{ app_jenkins_port }}/job/webapp_dev/lastSuccessfulBuild/artifact/dist/{{ app_artifact_name }}"
-    dest: /var/tmp
-
-- name: Unarchive artifact
-  unarchive:
-    copy: false
-    dest: "{{ app_path }}"
-    src: "/var/tmp/{{ app_artifact_name }}"
-    owner: vagrant
-    group: vagrant
-
-- name: Set up service definition
-  template:
-    src: webapp.service.j2
-    dest: /etc/systemd/system/webapp.service
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - restart webapp service
-
-- name: Ensure the app service is running
-  service:
-    name: webapp
-    state: started
-    enabled: yes
-
-- name: Configure nginx to front the app
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/nginx.conf
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Ensure nginx is running
-  service:
-    name: nginx
-    state: started
-    enabled: yes
-
-- name: Display machine IP
-  debug:
-    msg: "{{ ansible_default_ipv4.address }}"
-
+- fail:
+    msg: "Deployment to {{ inventory_hostname }} was not permitted by policy"
+  when: deployed|skipped
