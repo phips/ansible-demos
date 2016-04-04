@@ -1,7 +1,7 @@
 app
 ===
 
-Deploys a [Python/Flask](http://flask.pocoo.org) [web application](https://github.com/phips/flask_app/tree/tiad) from an artifact (supplied by Jenkins) and fronts it with nginx+WSGI.
+Deploys a [Python/Flask](http://flask.pocoo.org) [web application](https://github.com/phips/flask_app) from an artifact (supplied by Jenkins) and fronts it with nginx+WSGI.
 
 This role forms a major part of my demonstrations, and has been tinkered with and expanded over time. A customer once asked me if [Ansible Tower](ansible.com/tower) provided an authorisation system for code deployments - it doesn't, but this role mimics behaviour that could be made to work like that. In short it does a check against a third party web service for permission - in the context of the demos this is simply a curl against an nginx server running on another host. If the curl fails then deployment will be set to True anyway, so you don't need to put this part of the puzzle into your own setups.
 
