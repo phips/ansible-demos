@@ -18,13 +18,16 @@
       fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
       when: (vcenter_user is not defined) or (vcenter_pass is not defined)
 
-    - name: Shutdown VM first if delete required
-      vsphere_guest:
-        vcenter_hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_user }}"
-        password: "{{ vcenter_pass }}"
-        guest: "{{ name }}"
-        state: "powered_off"
+    - block:
+      - name: Shutdown VM first if delete required
+        vsphere_guest:
+          vcenter_hostname: "{{ vcenter_hostname }}"
+          username: "{{ vcenter_user }}"
+          password: "{{ vcenter_pass }}"
+          guest: "{{ name }}"
+          state: "powered_off"
+      - name: Remove from Tower inventory
+        command: "tower-cli host delete --name {{ name }}"
       when: state == "absent"
 
     - name: Set VM to desired state

@@ -41,6 +41,8 @@
         esxi:
           datacenter: BOX
           hostname: "{{ esxhost }}"
+        vm_hardware:
+          memory_mb: "{{ vm_memory | default(1024) }}"
 
     - block:
         - name: Wait a minute for tools to start
@@ -119,7 +121,7 @@
 - name: Bootstrap new VM
   hosts: just_created
   become: true
-  tasks:
+  pre_tasks:
     - name: Set hostname
       hostname:
         name: "{{ name }}"
@@ -133,4 +135,3 @@
     - name: Poke Tower for post-install config
       shell: test -x /opt/scripts/req_conf.sh && /opt/scripts/req_conf.sh &
       changed_when: false
-

@@ -23,3 +23,8 @@
     - { role: vmwtools
       , when: (ansible_virtualization_type == "VMware" and vmwtools_install)
       , tags: tools }
+
+- hosts: app
+  become: true
+  roles:
+    - { role: app }

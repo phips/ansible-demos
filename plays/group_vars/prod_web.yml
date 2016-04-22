@@ -1,8 +1,0 @@
----
-# vars for prod_web
-
-packages:
-  - telnet
-
-app_repo: vagrant@jenkins.tiad:demo_flask_app.git
-app_branch: tiad
