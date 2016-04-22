@@ -1,8 +1,8 @@
 ---
 # defaults file for vmwtools
 
-vmwtools_tar: VMwareTools-9.9.3-2759765.tar.gz
-vmwtools_sha: 9364822dd164b75828fcadcaefda785791117479c31ca77ccdb6625bf0977af3
+vmwtools_tar: VMwareTools-10.0.5-3228253.tar.gz
+vmwtools_sha: 296c438522e625822ad2392d70a07fc15f5929a1708941d0353e4db70c54d93f
 vmwtools_tmp: /var/tmp
 vmwtools_cleanup: False
 vmwtools_install: True
