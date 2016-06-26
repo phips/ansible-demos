@@ -4,7 +4,7 @@ Here are all the [plays](plays) and [roles](roles) I use in my many varieties of
 
 There aren't any instructions, per se, as this is all simply reference material. However, you can view a common demonstration I give [here on Vimeo](https://vimeo.com/164267733), or [here on Youtube](https://youtu.be/DA1Pmunx6aM).
 
-**NOTE**: You should, however, assume that you need [Ansible Core 2.0](https://github.com/ansible/ansible) - a lot of the plays and roles here now feature [blocks](http://docs.ansible.com/ansible/playbooks_blocks.html), and so will fail on Core 1.9 and less.
+**NOTE**: You should, however, assume that you need at least [Ansible Core 2](https://github.com/ansible/ansible) - a lot of the plays and roles here now feature [blocks](http://docs.ansible.com/ansible/playbooks_blocks.html), and so will fail on Core 1.9 and less.
 
 Quite often I am working with [dynamic inventory](http://docs.ansible.com/ansible/intro_dynamic_inventory.html) sources. Those scripts are not here, as they change. The best place to get them is from [the Ansible source](https://github.com/ansible/ansible/tree/devel/contrib/inventory) itself.
 
