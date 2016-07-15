@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+[{{ item.label }}]
+name={{ item.name }}
+baseurl={{ item.baseurl }}
+enabled={% if item.enabled %}1
+{% else %}0
+{% endif %}
+gpgcheck={% if item.gpgcheck %}1
+gpgkey={{ item.gpgkey }}
+{% else %}0
+{% endif %}

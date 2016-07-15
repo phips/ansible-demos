@@ -1,0 +1,4 @@
+---
+# vars file for CentOS-7
+
+patching_default_repo_def: CentOS-Base.repo

@@ -1,0 +1,24 @@
+---
+# tasks file for patching
+
+- name: Include OS version specific differences
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+
+- name: Ensure Yum repositories are configured
+  template:
+    src: template.repo.j2
+    dest: "/etc/yum.repos.d/{{ item.label }}.repo"
+    owner: root
+    group: root
+    mode: 0644
+  when: patching_repos
+  with_items: patching_repos
+
+- name: Ensure OS shipped yum repo configs are absent
+  file:
+    path: "/etc/yum.repos.d/{{ patching_default_repo_def }}"
+    state: absent
+
+- name: Patch this host
+  command: yum update -y --enablerepo=osupdates
+  when: patching
