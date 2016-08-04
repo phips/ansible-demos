@@ -7,7 +7,7 @@
   vars:
     region:   eu-west-1
     ami:      ami-9d23aeea # Amazon Linux 2014.09.2
-    keypair:  ** your_ssh_keypair **
+    keypair:  "{{ ec2_keypair_name | default('you need to define this') }}"
     set_dns:  False
     count:    1
     tags:
