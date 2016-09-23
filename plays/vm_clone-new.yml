@@ -36,7 +36,7 @@
         name: "{{ name }}"
         template: "{{ vmtemplate }}"
         disk:
-          - size_gb: 10
+          - size_gb: "{{ disk_size | default(20) }}"
             type: thin
             datastore: "{{ datastore }}"
         nic:
