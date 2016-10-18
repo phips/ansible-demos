@@ -3,6 +3,3 @@ linuxpython
 
 [linuxpython]
 linux ansible_connection=local ansible_python_interpreter=/home/vagrant/pip/bin/python
-
-[osxpython]
-osx ansible_connection=local ansible_python_interpreter=/Users/ansible/pip/bin/python
