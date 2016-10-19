@@ -34,6 +34,16 @@
     owner: vagrant
     group: vagrant
 
+- name: Set up ini file
+  template:
+    src: uwsgi.ini.j2
+    dest: "{{ app_path }}/uwsgi.ini"
+    owner: vagrant
+    group: vagrant
+    mode: 0644
+  notify:
+    - restart webapp service
+
 - name: Set up service definition
   template:
     src: webapp.service.j2
