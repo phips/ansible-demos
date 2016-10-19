@@ -11,6 +11,6 @@
     regexp: "^{{ item.setting }}"
     line: "{{ item.setting }} {{ item.value }}"
     state: "{{ item.state }}"
-  with_items: sshd_options
+  with_items: "{{ sshd_options }}"
   notify:
     - restart sshd
