@@ -12,7 +12,7 @@
     group: root
     mode: 0644
   when: patching_repos
-  with_items: patching_repos
+  with_items: "{{ patching_repos }}"
 
 - name: Ensure OS shipped yum repo configs are absent
   file:
