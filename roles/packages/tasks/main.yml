@@ -5,12 +5,10 @@
   yum:
     name: "{{ item }}"
     state: present
-  with_items: "{{ packages }}"
-  when: packages is defined
+  with_items: "{{ packages | default([]) }}"
 
 - name: Ensure python-pip packages are installed
   pip:
     name: "{{ item }}"
     state: latest
-  with_items: "{{ packages_pip }}"
-  when: packages_pip is defined
+  with_items: "{{ packages_pip | default([]) }}"

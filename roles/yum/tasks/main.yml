@@ -35,5 +35,4 @@
     owner: root
     group: root
     mode: 0644
-  when: yum_repos is defined
-  with_items: "{{ yum_repos }}"
+  with_items: "{{ yum_repos | default([]) }}"
