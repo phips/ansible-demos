@@ -1,0 +1,137 @@
+---
+# vim: set ft=ansible et ts=2 sw=2:
+#
+# Create a new VM from a template
+
+- name: VM from template
+  hosts: vmcreate
+  gather_facts: false
+  connection: local
+  vars:
+    vcenter_hostname: vcsa.box
+    esxhost: esx1.box
+    datastore: datastore1
+    network: "VMnetwork"
+    vmtemplate: CentOS7-Base
+    vmcluster: LAN
+    notes: Created by Ansible
+    dumpfacts: False
+  tasks:
+    - name: Check for required variables
+      fail: msg="Must pass name and group to -e"
+      when: name is not defined or group is not defined
+
+    - name: Check for vSphere access parameters
+      fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
+      when: (vcenter_user is not defined) or (vcenter_pass is not defined)
+
+    - name: Create VM from template
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        guest: "{{ name }}"
+        from_template: yes
+        template_src: "{{ vmtemplate }}"
+        resource_pool: "/Resources"
+        vm_extra_config:
+          notes: "{{ notes }}"
+          otheridentifyinginfo:
+            env: "dev"
+        esxi:
+          datacenter: BOX
+          hostname: "{{ esxhost }}"
+        vm_hardware:
+          memory_mb: "{{ vm_memory | default(1024) }}"
+
+    - block:
+        - name: Wait a minute for tools to start
+          wait_for:
+            timeout: 60
+          changed_when: False
+
+        - name: Gather VM facts
+          vsphere_guest:
+            vcenter_hostname: "{{ vcenter_hostname }}"
+            username: "{{ vcenter_user }}"
+            password: "{{ vcenter_pass }}"
+            guest: "{{ name }}"
+            vmware_guest_facts: yes
+          register: newvm
+
+        - name: IP address info
+          debug:
+            msg: "{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }} {{ name }}"
+
+      # oops, we probably need to wait a little longer to grab IP address
+      rescue:
+        - name: Wait a bit longer for tools to start
+          wait_for:
+            timeout: 30
+          changed_when: False
+
+        - name: Gather VM facts
+          vsphere_guest:
+            vcenter_hostname: "{{ vcenter_hostname }}"
+            username: "{{ vcenter_user }}"
+            password: "{{ vcenter_pass }}"
+            guest: "{{ name }}"
+            vmware_guest_facts: yes
+          register: newvm
+
+        - name: IP address info
+          debug:
+            msg: "{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }} {{ name }}"
+
+    - name: Dump all facts when ask to
+      debug:
+        msg: "{{ newvm.ansible_facts }}"
+      when: dumpfacts
+
+    - name: Wait for ssh to be available
+      wait_for:
+        host: "{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
+        port: 22
+        timeout: 600
+        state: started
+
+    - name: Create temporary variables file
+      copy:
+        content: "ansible_ssh_host: {{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
+        dest: "/var/tmp/{{ name }}-vars.yml"
+
+    - name: Ensure host is in Tower inventory
+      command: "tower-cli host modify --create-on-missing --name {{ name }} --inventory 6 --variables /var/tmp/{{ name }}-vars.yml"
+
+    - name: Associate host with group in Tower
+      command: "tower-cli host associate --host {{ name }} --group {{ group }}"
+
+    - name: Dump temporary variables file
+      file:
+        path: "/var/tmp/{{ name }}-vars.yml"
+        state: absent
+
+    - name: Add to new group
+      add_host:
+        name: "{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
+        group: just_created
+        ip: "{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
+      changed_when: false
+
+- name: Bootstrap new VM
+  hosts: just_created
+  become: true
+  pre_tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ name }}"
+
+    - name: Set hostname in /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: "^{{ ansible_default_ipv4.address }}.+$"
+        line: "{{ ansible_default_ipv4.address }} {{ name }}"
+
+    - name: Poke Tower for post-install config
+      shell: test -x /opt/scripts/req_conf.sh && /opt/scripts/req_conf.sh &
+      changed_when: false
