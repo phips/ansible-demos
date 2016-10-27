@@ -1,14 +1,14 @@
 ---
 # vim: set ft=ansible et ts=2 sw=2:
 #
-# Control the state of a VM - powered_on, powered_off or absent
+# Control the state of a VM - poweredon, poweredoff or absent
 # (i.e. delete it)
 
 - hosts: vmcreate
   gather_facts: false
   connection: local
   vars:
-    state: powered_on
+    state: poweredon
   tasks:
     - name: Check for required variables
       fail: msg="Must pass name to -e"
@@ -18,37 +18,20 @@
       fail: msg="Must set vcenter_user and vcenter_pass in a Vault"
       when: (vcenter_user is not defined) or (vcenter_pass is not defined)
 
-    - block:
-      - name: Shutdown VM first if delete required
-        vsphere_guest:
-          vcenter_hostname: "{{ vcenter_hostname }}"
-          username: "{{ vcenter_user }}"
-          password: "{{ vcenter_pass }}"
-          guest: "{{ name }}"
-          state: "powered_off"
-      - name: Remove from Tower inventory
-        command: "tower-cli host delete --name {{ name }}"
+    - name: Shutdown VM first if delete required
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_user }}"
+        password: "{{ vcenter_pass }}"
+        name: "{{ name }}"
+        state: "poweredoff"
       when: state == "absent"
 
     - name: Set VM to desired state
-      vsphere_guest:
-        vcenter_hostname: "{{ vcenter_hostname }}"
+      vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
         username: "{{ vcenter_user }}"
         password: "{{ vcenter_pass }}"
-        guest: "{{ name }}"
+        name: "{{ name }}"
         state: "{{ state }}"
-
-    - name: Gather VM facts
-      vsphere_guest:
-        vcenter_hostname: "{{ vcenter_hostname }}"
-        username: "{{ vcenter_user }}"
-        password: "{{ vcenter_pass }}"
-        guest: "{{ name }}"
-        vmware_guest_facts: yes
-      register: newvm
-      when: facts | default(False)
-
-    - name: Report facts
-      debug: msg="{{ newvm.ansible_facts.hw_eth0.ipaddresses[0] }}"
-      when: not newvm|skipped
 
