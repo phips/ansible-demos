@@ -1,0 +1,10 @@
+- include: deploy.yml
+- include: ec2_killall.yml
+#- include: ec2_new.yml
+#- include: ec2_terminate.yml
+#- include: ec2_vpc_setup.yml
+- include: ping.yml
+- include: post.yml
+#- include: vm_clone-new.yml
+- include: vm_clone.yml
+- include: vm_control.yml

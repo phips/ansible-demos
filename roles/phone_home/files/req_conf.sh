@@ -16,23 +16,23 @@ usage() {
 script=$0
 
 if [ $(uname) != "Linux" ]; then
-    logger -p user.err "Ansible: $script FAIL, only tested on Linux"
+    logger -p user.err "Ansible: ${script} FAIL, only tested on Linux"
     exit 1
 fi
 
 if [ ! -x /usr/bin/dig ]; then
-    logger -p user.err "Ansible: $script FAIL, no dig command. Try installing bind-utils"
+    logger -p user.err "Ansible: ${script} FAIL, no dig command. Try installing bind-utils"
     exit 1
 fi
 
 if [ ! -x /bin/dnsdomainname ]; then
-    logger -p user.err "Ansible: $script FAIL, no dnsdomainname command. Try installing hostname"
+    logger -p user.err "Ansible: ${script} FAIL, no dnsdomainname command. Try installing hostname"
     exit 1
 fi
 
 dnsdomain=$(/bin/dnsdomainname)
 if [ -z $dnsdomain ]; then
-    logger -p user.err "Ansible: $script FAIL, can't establish DNS domain name"
+    logger -p user.err "Ansible: ${script} FAIL, can't establish DNS domain name"
     exit 1
 fi
 
@@ -41,7 +41,7 @@ configkey=${2:-$(dig +short ${dnsdomain} txt | tr -d '"' | cut -f1 -d" ")}
 jtid=${3:-$(dig +short ${dnsdomain} txt | tr -d '"' | cut -f2 -d" ")}
 
 if [[ -z $towersvr || -z $configkey || -z $jtid ]]; then
-    logger -p user.err "Ansible: $script FAIL, no towersvr, configkey or jtid"
+    logger -p user.err "Ansible: ${script} FAIL, no towersvr, configkey or jtid"
     exit 1
 fi
 
@@ -50,7 +50,10 @@ attempt=0
 while [[ $attempt -lt $retry_attempts ]]
 do
   status_code=$(curl -s -i --data "host_config_key=${configkey}" http://${towersvr}/api/v1/job_templates/${jtid}/callback/ | head -n 1 | awk '{print $2}')
-  if [ $status_code == 202 -o $status_code == 201 ]; then
+  if [[ $status_code -ge 300 ]]; then
+      logger -p user.err "Ansible: ${script} FAIL, ${status_code} received"
+      exit 1
+  else
     exit 0
   fi
   attempt=$(( attempt + 1 ))
