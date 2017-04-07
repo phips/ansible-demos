@@ -22,7 +22,7 @@
         module: ec2
         keypair: "{{ keypair }}"
         instance_type: "{{ type | default('t2.micro') }}"
-        vpc_subnet_id: "subnet-{{ vpc_subnet | default('459a9231') }}"
+        vpc_subnet_id: "subnet-{{ vpc_subnet | default('you need to define this') }}"
         image: "{{ ami }}"
         region: "{{ region }}"
         count: "{{ count }}"
