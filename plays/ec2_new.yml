@@ -6,8 +6,8 @@
   connection: local
 
   vars:
-    region:   eu-west-1
-    ami:      ami-9d23aeea # Amazon Linux 2014.09.2
+    region:   eu-west-2
+    ami:      ami-0eab3a90fc693af19 # CentOS Linux 7 x86_64 HVM EBS ENA 1901_01
     keypair:  "{{ ec2_keypair_name | default('you need to define this') }}"
     set_dns:  False
     count:    1
@@ -22,13 +22,14 @@
         module: ec2
         keypair: "{{ keypair }}"
         instance_type: "{{ type | default('t2.micro') }}"
-        vpc_subnet_id: "subnet-{{ vpc_subnet | default('you need to define this') }}"
+        # subnet-0f33c166 is eu-west-2c 172.31.32.0
+        vpc_subnet_id: "subnet-{{ vpc_subnet | default('0f33c166') }}"
         image: "{{ ami }}"
         region: "{{ region }}"
         count: "{{ count }}"
         wait: yes
         instance_tags: "{{ tags }}"
-        #user_data: "{{ lookup('file', '../scripts/ec2_bootstrap.sh') }}"
+        # user_data: "{{ lookup('file', '../scripts/ec2_bootstrap.sh') }}"
         assign_public_ip: "{{ assign_eip | default(true) }}"
       register: ec2
 
