@@ -1,0 +1,3 @@
+---
+# defaults file for sudo
+sudo_cleanup: true

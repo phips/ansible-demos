@@ -1,0 +1,18 @@
+---
+# vim: set ft=ansible:
+# tasks file for sudo
+
+- name: Ensure sudoers.d file exists
+  template:
+    src: user.j2
+    dest: "/etc/sudoers.d/{{ sudo_user }}"
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Time based cleanup
+  at:
+    command: "rm /etc/sudoers.d/{{ sudo_user }}"
+    count: "{{ sudo_count | default('10') }}"
+    units: "{{ sudo_units | default('minutes') }}"
+  when: sudo_cleanup|bool
