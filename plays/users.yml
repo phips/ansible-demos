@@ -1,0 +1,7 @@
+---
+# vim: set syn=ansible ts=2 sw=2 et:
+- hosts: all
+  become: true
+
+  roles:
+    - { role: ansible-users, tags: users }
