@@ -1,0 +1,7 @@
+---
+# tasks file for services
+
+- name: Ensure service state is {{ services_state }}
+  service:
+    name: "{{ services_name }}"
+    state: "{{ services_state }}"

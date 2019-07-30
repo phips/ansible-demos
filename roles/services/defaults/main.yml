@@ -1,0 +1,6 @@
+---
+# defaults file for services
+
+services_list:
+  - atd
+  - rsyslog
