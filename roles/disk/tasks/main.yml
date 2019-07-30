@@ -8,3 +8,4 @@
 - name: Output
   debug:
     var: output.stdout_lines
+  when: output.stdout != ''
