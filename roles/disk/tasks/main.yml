@@ -5,5 +5,6 @@
   command: /bin/find "{{ disk_path | default('/') }}" -size +{{ disk_min_size_check | default('1') }}M -ls
   register: output
 
-- debug:
+- name: Output
+  debug:
     var: output.stdout_lines
