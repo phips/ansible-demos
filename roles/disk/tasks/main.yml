@@ -1,0 +1,9 @@
+---
+# tasks file for disk
+
+- name: Find large files
+  command: /bin/find "{{ disk_path | default('/') }}" -size "{{ disk_min_size_check | default('+1M') }}" -ls
+  register: output
+
+- debug:
+    var: output.stdout_lines
