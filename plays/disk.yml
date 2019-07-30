@@ -5,4 +5,4 @@
   become: true
 
   roles:
-    - { role: disk, disk_path: /apps }
+    - { role: disk }
